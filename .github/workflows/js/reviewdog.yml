@@ -1,0 +1,38 @@
+name: Reviewdog
+
+on:
+  workflow_call:
+    level:
+      type: string
+      default: error
+
+jobs:
+  tsc:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: reviewdog tsc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Bun install
+        uses: ./.github/actions/bun-install
+      - uses: EPMatt/reviewdog-action-tsc@main # v1.8.0
+        with:
+          reporter: github-pr-review
+          level: ${{ inputs.level }}
+  eslint:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: reviewdog eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Bun install
+        uses: ./.github/actions/bun-install
+      - uses: reviewdog/action-eslint@master # v1.33.2
+        with:
+          reporter: github-pr-review # Change reporter.
+          fail_level: ${{ inputs.level }}
+          level: ${{ inputs.level }}

@@ -1,0 +1,71 @@
+name: Test coverage
+description: Test coverage
+inputs:
+  token:
+    description: GitHub token
+    required: true
+  lcov:
+    description: Enable lcov coverage
+    required: false
+    default: "true"
+  xml:
+    description: Enable xml coverage
+    required: false
+    default: "false"
+  json:
+    description: Enable json coverage
+    required: false
+    default: "false"
+  coverage-dir:
+    description: Path to the coverage directory
+    required: false
+    default: "./coverage"
+  lcov-file:
+    description: Path to the lcov file
+    required: false
+    default: "lcov.info"
+  xml-file:
+    description: Path to the xml file
+    required: false
+    default: "coverage.xml"
+  json-summary-file:
+    description: Path to the json summary file
+    required: false
+    default: "summary.json"
+  json-final-file:
+    description: Path to the json final file
+    required: false
+    default: "final.json"
+runs:
+  using: "composite"
+  steps:
+    - name: Upload lcov coverage
+      if: ${{ inputs.lcov == 'true' }}
+      uses: romeovs/lcov-reporter-action@master # v0.4.0
+      with:
+        github-token: ${{ inputs.token }}
+        lcov-file: ${{ inputs.coverage-dir }}/${{ inputs.lcov-file }}
+        title: Coverage Report
+        delete-old-comments: true
+        filter-changed-files: true
+
+    - name: Upload xml coverage
+      if: ${{ inputs.xml == 'true' }}
+      uses: orgoro/coverage@main # v3.2
+      with:
+        coverageFile: ${{ inputs.coverage-dir }}/${{ inputs.xml-file }}
+        token: ${{ inputs.token }}
+
+    - name: Upload JSON coverage
+      if: ${{ inputs.json == 'true' }}
+      uses: davelosert/vitest-coverage-report-action@main # v2.8.3
+      with:
+        json-summary-path: ${{ inputs.coverage-dir }}/${{ inputs.json-summary-file }}
+        json-final-path: ${{ inputs.coverage-dir }}/${{ inputs.json-final-file }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@main # v4.6.2
+      with:
+        name: coverage-report
+        path: ${{ inputs.coverage-dir }}
+        include-hidden-files: true

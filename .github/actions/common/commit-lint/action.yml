@@ -1,0 +1,8 @@
+name: Git commit linter
+description: Check commit messages for linting errors
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@main
+    - uses: wagoid/commitlint-github-action@master # v6.2.1
+      if: ${{ github.actor != 'dependabot[bot]' }}

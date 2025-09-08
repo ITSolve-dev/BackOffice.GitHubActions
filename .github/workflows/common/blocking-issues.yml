@@ -1,0 +1,33 @@
+# https://github.com/marketplace/actions/blocking-issues
+# https://github.com/Levi-Lesches/blocking-issues-test
+name: Blocking Issues
+
+on:
+  workflow_call:
+    inputs:
+      label:
+        description: Label to use instead of creating a new one
+        required: false
+        default: "blocked"
+        type: string
+  issues:
+    types: [opened, edited, deleted, transferred, closed, reopened]
+  pull_request_target:
+    types: [opened, edited, closed, reopened]
+
+jobs:
+  blocking_issues:
+    permissions:
+      checks: write
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    name: Checks for blocking issues
+
+    steps:
+      - uses: Levi-Lesches/blocking-issues@main # v2.0.4
+        with:
+          # Optional: Choose an existing label to use instead of creating a new one.
+          # If the label cannot be found, the default one will be created and used.
+          # The default is: "blocked" (black).
+          use-label: ${{ inputs.label }}

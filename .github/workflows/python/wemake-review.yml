@@ -1,0 +1,32 @@
+name: Wemake styleguide review
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: Path to the directory to check
+        required: false
+        type: string
+        default: ./src
+
+permissions:
+  checks: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.github_token }}
+
+jobs:
+  wemake-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@main
+      - name: wemake-python-styleguide
+        uses: wemake-services/wemake-python-styleguide@master # 1.3.0
+        with:
+          reporter: github-pr-review
+          path: ${{ inputs.path }}
+          fail_workflow: false

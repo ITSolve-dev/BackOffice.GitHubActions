@@ -1,0 +1,94 @@
+name: Build docker and push
+
+on:
+  workflow_call:
+    inputs:
+      create-release:
+        description: Auto create a release
+        required: false
+        default: true
+        type: boolean
+      deployments:
+        description: Deployments
+        required: false
+        default: true
+        type: boolean
+      url:
+        description: Deployment URL
+        required: false
+        default: ""
+        type: string
+
+env:
+  USERNAME: ${{ github.actor }}
+  PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@main
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master # v3.11.1
+      - uses: docker/login-action@master # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ env.USERNAME }}
+          password: ${{ env.PASSWORD }}
+
+      - id: meta
+        uses: docker/metadata-action@master # v5.7.0
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+            type=semver,pattern={{version}}
+
+      - name: start production deployment
+        if: ${{ inputs.deployments }}
+        uses: bobheadxi/deployments@main # v1.5.0
+        id: production-deployment
+        with:
+          step: start
+          token: ${{ env.USERNAME }}
+          env: production
+          ref: ${{ github.head_ref }}
+
+      - uses: docker/build-push-action@master # v6.18.0
+        with:
+          context: .
+          push: ${{ github.ref_type == 'tag' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: update deployment status
+        uses: bobheadxi/deployments@main # v1.5.0
+        if: always() && ${{ inputs.deployments }}
+        with:
+          step: finish
+          token: ${{ env.USERNAME }}
+          status: ${{ job.status }}
+          env: ${{ steps.production-deployment.outputs.env }}
+          deployment_id: ${{ steps.production-deployment.outputs.deployment_id }}
+          ref: ${{ github.head_ref }}
+          env_url: ${{ inputs.url }}
+
+  create-release:
+    # https://github.com/marketplace/actions/create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create Release
+        if: ${{ inputs.create-release }}
+        uses: ncipollo/release-action@main # v1.18.0
+        with:
+          name: ${{ github.ref_name }}
+          makeLatest: true
+          generateReleaseNotes: true

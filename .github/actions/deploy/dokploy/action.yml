@@ -1,0 +1,37 @@
+name: Dokploy deploy
+description: Deploy to Dokploy
+inputs:
+  url:
+    description: Base URL of Dokploy
+    required: true
+  token:
+    description: Auth token for Dokploy
+    required: true
+  app-id:
+    description: Application ID for Dokploy
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Dokploy Deployment
+      shell: bash
+      env:
+        DOKPLOY_URL: ${{ inputs.url }}
+        DOKPLOY_AUTH_TOKEN: ${{ inputs.token }}
+        DOKPLOY_APPLICATION_ID: ${{ inputs.app-id }}
+      run: |
+        response=$(curl -X 'POST' \
+          "$DOKPLOY_URL/api/application.deploy" \
+          -H 'accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -H "Authorization: Bearer $DOKPLOY_AUTH_TOKEN" \
+          -H "x-api-key: $DOKPLOY_AUTH_TOKEN" \
+          -d "{\"applicationId\": \"$DOKPLOY_APPLICATION_ID\"}" \
+          -w "%{http_code}" \
+          -o /dev/null \
+          -s)
+
+        if [ "$response" -ne 200 ]; then
+          echo "Deployment failed with status code: $response"
+          exit 1
+        fi

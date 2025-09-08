@@ -1,0 +1,25 @@
+name: Bun install
+description: Setup bun dependencies
+inputs:
+  version:
+    description: The version of bun to install
+    required: false
+    default: latest
+runs:
+  using: "composite"
+  steps:
+    - uses: oven-sh/setup-bun@main # v2.0.2
+      with:
+        bun-version: ${{ inputs.version }}
+    - name: Cache dependencies
+      uses: actions/cache@main # v4.2.3
+      id: cache-dependencies
+      with:
+        path: |
+          ~/.bun/install/cache
+        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}-
+    - name: Install dependencies
+      shell: bash
+      run: bun install

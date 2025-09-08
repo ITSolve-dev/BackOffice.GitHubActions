@@ -1,0 +1,53 @@
+name: Dokploy deployment
+
+on:
+  workflow_call:
+    inputs:
+      url:
+        description: Base URL of Dokploy
+        required: true
+      token:
+        description: Auth token for Dokploy
+        required: true
+      app-id:
+        description: Application ID for Dokploy
+        required: true
+
+permissions:
+  packages: write
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: start production deployment
+        if: ${{ inputs.deployments }}
+        uses: bobheadxi/deployments@main # v1.5.0
+        id: production-deployment
+        with:
+          step: start
+          token: ${{ env.USERNAME }}
+          env: production
+          ref: ${{ github.head_ref }}
+
+      - name: Dokploy deploy
+        uses: ../../actions/deploy/dokploy
+        with:
+          url: ${{ inputs.url }}
+          token: ${{ inputs.token }}
+          app-id: ${{ inputs.app-id }}
+
+      - name: update deployment status
+        uses: bobheadxi/deployments@main # v1.5.0
+        if: always() && ${{ inputs.deployments }}
+        with:
+          step: finish
+          token: ${{ env.USERNAME }}
+          status: ${{ job.status }}
+          env: ${{ steps.production-deployment.outputs.env }}
+          deployment_id: ${{ steps.production-deployment.outputs.deployment_id }}
+          ref: ${{ github.head_ref }}
+          env_url: ${{ inputs.url }}
