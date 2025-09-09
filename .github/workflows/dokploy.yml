@@ -3,20 +3,16 @@ name: Dokploy deployment
 on:
   workflow_call:
     inputs:
-      project-name:
-        description: Project name
-        required: true
-        type: string
-      application-name:
-        description: Application name
-        required: true
-        type: string
       url:
         description: Base URL of Dokploy
         required: true
         type: string
       token:
         description: Auth token for Dokploy
+        required: true
+        type: string
+      app-id:
+        description: Application ID for Dokploy
         required: true
         type: string
 
@@ -35,24 +31,23 @@ jobs:
         id: production-deployment
         with:
           step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }
           env: production
           ref: ${{ github.head_ref }}
 
       - name: Dokploy deploy
-        uses: jmischler72/dokploy-deploy-actions@main
+        uses: ITSolve-dev/BackOffice.GitHubActions/.github/actions/dokploy@main
         with:
-          PROJECT_NAME: ${{ inputs.project-name }}
-          APPLICATION_NAME: ${{ inputs.application-name }}
-          DOKPLOY_HOST: ${{ inputs.url }}
-          DOKPLOY_TOKEN: ${{ inputs.token }}
+          url: ${{ inputs.url }}
+          token: ${{ inputs.token }}
+          app-id: ${{ inputs.app-id }}
 
       - name: update deployment status
         uses: bobheadxi/deployments@main # v1.5.0
         if: always()
         with:
           step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }
           status: ${{ job.status }}
           env: ${{ steps.production-deployment.outputs.env }}
           deployment_id: ${{ steps.production-deployment.outputs.deployment_id }}
