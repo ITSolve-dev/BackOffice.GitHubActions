@@ -3,6 +3,11 @@ name: Build docker and push
 on:
   workflow_call:
     inputs:
+      context:
+        description: Path to Dockerfile
+        required: false
+        default: "."
+        type: string
       create-release:
         description: Auto create a release
         required: false
@@ -46,7 +51,7 @@ jobs:
 
       - uses: docker/build-push-action@master # v6.18.0
         with:
-          context: .
+          context: ${{ inputs.context }}
           push: ${{ github.ref_type == 'tag' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
