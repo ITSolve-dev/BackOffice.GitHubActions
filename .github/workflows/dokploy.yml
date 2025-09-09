@@ -37,7 +37,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Dokploy deploy
-        uses: ../../actions/deploy/dokploy
+        uses: ./.github/actions/deploy/dokploy
         with:
           url: ${{ inputs.url }}
           token: ${{ inputs.token }}
