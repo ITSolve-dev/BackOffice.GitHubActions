@@ -6,12 +6,15 @@ on:
       url:
         description: Base URL of Dokploy
         required: true
+        type: string
       token:
         description: Auth token for Dokploy
         required: true
+        type: string
       app-id:
         description: Application ID for Dokploy
         required: true
+        type: string
 
 permissions:
   packages: write
