@@ -36,7 +36,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Dokploy deploy
-        uses: ./.github/actions/deploy/dokploy
+        uses: ITSolve-dev/BackOffice.GitHubActions/.github/actions/dokploy
         with:
           url: ${{ inputs.url }}
           token: ${{ inputs.token }}
