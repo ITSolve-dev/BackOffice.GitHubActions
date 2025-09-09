@@ -35,7 +35,7 @@ jobs:
         id: production-deployment
         with:
           step: start
-          token: ${{ inputs.github-token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           env: production
           ref: ${{ github.head_ref }}
 
@@ -51,7 +51,7 @@ jobs:
         if: always()
         with:
           step: finish
-          token: ${{ inputs.github-token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           env: ${{ steps.production-deployment.outputs.env }}
           deployment_id: ${{ steps.production-deployment.outputs.deployment_id }}
