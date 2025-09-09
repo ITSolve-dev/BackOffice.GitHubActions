@@ -27,7 +27,6 @@ jobs:
 
     steps:
       - name: start production deployment
-        if: ${{ inputs.deployments }}
         uses: bobheadxi/deployments@main # v1.5.0
         id: production-deployment
         with:
@@ -45,7 +44,7 @@ jobs:
 
       - name: update deployment status
         uses: bobheadxi/deployments@main # v1.5.0
-        if: always() && ${{ inputs.deployments }}
+        if: always()
         with:
           step: finish
           token: ${{ env.USERNAME }}
