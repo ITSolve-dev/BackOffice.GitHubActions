@@ -19,10 +19,6 @@ on:
         description: Auth token for Dokploy
         required: true
         type: string
-      app-id:
-        description: Application ID for Dokploy
-        required: true
-        type: string
 
 permissions:
   packages: write
