@@ -3,6 +3,10 @@ name: Dokploy deployment
 on:
   workflow_call:
     inputs:
+      github-token:
+        description: Github token
+        required: true
+        type: string
       url:
         description: Base URL of Dokploy
         required: true
@@ -31,7 +35,7 @@ jobs:
         id: production-deployment
         with:
           step: start
-          token: ${{ env.USERNAME }}
+          token: ${{ inputs.github-token }}
           env: production
           ref: ${{ github.head_ref }}
 
@@ -47,7 +51,7 @@ jobs:
         if: always()
         with:
           step: finish
-          token: ${{ env.USERNAME }}
+          token: ${{ inputs.github-token }}
           status: ${{ job.status }}
           env: ${{ steps.production-deployment.outputs.env }}
           deployment_id: ${{ steps.production-deployment.outputs.deployment_id }}
