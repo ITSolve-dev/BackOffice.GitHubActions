@@ -22,7 +22,7 @@ permissions:
   deployments: write
 
 jobs:
-  deploy:
+  dokploy:
     runs-on: ubuntu-latest
 
     steps:
