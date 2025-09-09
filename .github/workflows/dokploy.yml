@@ -3,8 +3,12 @@ name: Dokploy deployment
 on:
   workflow_call:
     inputs:
-      github-token:
-        description: Github token
+      project-name:
+        description: Project name
+        required: true
+        type: string
+      application-name:
+        description: Application name
         required: true
         type: string
       url:
@@ -40,11 +44,12 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Dokploy deploy
-        uses: ITSolve-dev/BackOffice.GitHubActions/.github/actions/dokploy@main
+        uses: jmischler72/dokploy-deploy-actions@main
         with:
-          url: ${{ inputs.url }}
-          token: ${{ inputs.token }}
-          app-id: ${{ inputs.app-id }}
+          PROJECT_NAME: ${{ inputs.project-name }}
+          APPLICATION_NAME: ${{ inputs.application-name }}
+          DOKPLOY_HOST: ${{ inputs.url }}
+          DOKPLOY_TOKEN: ${{ inputs.token }}
 
       - name: update deployment status
         uses: bobheadxi/deployments@main # v1.5.0
